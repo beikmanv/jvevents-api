@@ -9,4 +9,5 @@ public interface EventService {
     EventDTO createEvent(EventDTO eventDTO);
     EventDTO updateEvent(Long id, EventDTO eventDTO);
     void deleteEventById(Long id);
+    void signupForEvent(Long eventId, String userEmail);
 }

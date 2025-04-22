@@ -26,6 +26,11 @@ public class AppUser {
     private String email;
 
     @ManyToMany
+    @JoinTable(
+            name = "app_users_events",
+            joinColumns = @JoinColumn(name = "users_id"),
+            inverseJoinColumns = @JoinColumn(name = "events_id")
+    )
     private Set<Event> events = new HashSet<>();
 
     @Column(name = "created_at", updatable = false)

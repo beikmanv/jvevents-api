@@ -59,4 +59,10 @@ public class EventController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping("/{id}/signup")
+    public ResponseEntity<Void> signupForEvent(@PathVariable Long id, @RequestParam String email) {
+        eventService.signupForEvent(id, email);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

@@ -30,7 +30,7 @@ public class Event {
 
     private String location;
 
-    @ManyToMany(mappedBy = "events")
+    @ManyToMany(mappedBy = "events", fetch = FetchType.EAGER)
     @JsonBackReference
     private Set<AppUser> users = new HashSet<>();
 

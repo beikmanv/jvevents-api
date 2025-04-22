@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -13,10 +14,11 @@ import java.time.LocalDateTime;
 @Builder
 public class EventDTO {
     private Long id;
-    private String title;  // renamed from 'name' to 'title'
+    private String title;
     private String description;
-    private LocalDateTime eventDate;  // renamed from 'startDate' to 'eventDate'
+    private LocalDateTime eventDate;
     private String location;
-    private LocalDateTime createdAt;  // added for tracking creation time
-    private LocalDateTime modifiedAt;  // added for tracking modification time
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+    private Set<AppUserDTO> users;
 }

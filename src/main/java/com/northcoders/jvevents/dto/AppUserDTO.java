@@ -19,4 +19,11 @@ public class AppUserDTO {
     private Set<Long> eventIds;  // We'll send event IDs as references, not the full event object.
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+
+    public AppUserDTO(Long id, String username, String email) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+    }
+
 }
