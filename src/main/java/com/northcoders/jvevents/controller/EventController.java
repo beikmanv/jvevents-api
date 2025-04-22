@@ -1,6 +1,8 @@
 package com.northcoders.jvevents.controller;
 
+import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
+import com.northcoders.jvevents.model.AppUser;
 import com.northcoders.jvevents.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,5 +66,11 @@ public class EventController {
     public ResponseEntity<Void> signupForEvent(@PathVariable Long id, @RequestParam String email) {
         eventService.signupForEvent(id, email);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/users")
+    public ResponseEntity<List<AppUserDTO>> getUsersForEvent(@PathVariable Long id) {
+        List<AppUserDTO> users = eventService.getUsersForEvent(id);
+        return ResponseEntity.ok(users);
     }
 }

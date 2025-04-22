@@ -101,16 +101,45 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     public void signupForEvent(Long eventId, String userEmail) {
-            System.out.println("Signing up user with email: " + userEmail);
-            AppUser user = appUserRepository.findByEmail(userEmail)
-                    .orElseThrow(() -> new UserNotFoundException("User not found: " + userEmail));
-            Event event = eventRepository.findById(eventId)
-                    .orElseThrow(() -> new EventNotFoundException("Event not found: " + eventId));
-            if (user.getEvents().contains(event)) {
-                throw new IllegalStateException("User is already signed up for this event.");
-            }
-            user.getEvents().add(event); // Only update the owning side
-            appUserRepository.save(user);
-            System.out.println("✅ User added to event!");
+        AppUser user = appUserRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + userEmail));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found: " + eventId));
+        if (user.getEvents().contains(event)) {
+            throw new IllegalStateException("User is already signed up for this event.");
+        }
+        user.getEvents().add(event);
+        event.getUsers().add(user);
+        appUserRepository.save(user);
+        System.out.println("✅ User added to event!");
+    }
+
+    public List<AppUserDTO> getUsersForEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found: " + eventId));
+
+        return event.getUsers().stream()
+                .map(user -> AppUserDTO.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .eventIds(user.getEvents().stream()
+                                .map(Event::getId)
+                                .collect(Collectors.toSet()))
+                        .createdAt(user.getCreatedAt())
+                        .modifiedAt(user.getModifiedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    // Get all events assigned to a specific user
+    public List<EventDTO> getEventsForUser(Long userId) {
+        AppUser user = appUserRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+
+        return user.getEvents().stream()
+                .map(event -> new EventDTO(event.getId(), event.getTitle(), event.getDescription(),
+                        event.getEventDate(), event.getLocation(), event.getCreatedAt(), event.getModifiedAt()))
+                .collect(Collectors.toList());
     }
 }

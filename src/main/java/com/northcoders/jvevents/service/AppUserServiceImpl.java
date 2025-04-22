@@ -1,8 +1,11 @@
 package com.northcoders.jvevents.service;
 
 import com.northcoders.jvevents.dto.AppUserDTO;
+import com.northcoders.jvevents.dto.EventDTO;
 import com.northcoders.jvevents.exception.AppUserNotFoundException;
+import com.northcoders.jvevents.exception.EventNotFoundException;
 import com.northcoders.jvevents.exception.UnauthenticatedUserException;
+import com.northcoders.jvevents.exception.UserNotFoundException;
 import com.northcoders.jvevents.model.AppUser;
 import com.northcoders.jvevents.model.Event;
 import com.northcoders.jvevents.repository.AppUserRepository;
@@ -10,10 +13,10 @@ import com.northcoders.jvevents.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,15 +83,28 @@ public class AppUserServiceImpl implements AppUserService {
         appUser.setUsername(appUserDTO.getUsername());
         appUser.setEmail(appUserDTO.getEmail());
 
-        // If events are provided in DTO
         if (appUserDTO.getEventIds() != null) {
-            Set<Event> events = appUserDTO.getEventIds().stream()
+            List<Event> events = appUserDTO.getEventIds().stream()
                     .map(eventId -> eventRepository.findById(eventId)
                             .orElseThrow(() -> new RuntimeException("Event not found")))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
             appUser.setEvents(events);
         }
-
         return appUser;
     }
+
+//    // Get all events assigned to a specific user
+//    @Transactional
+//    public List<EventDTO> getEventsForUser(Long userId) {
+//        AppUser user = appUserRepository.findById(userId)
+//                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+//
+//        // Log to verify the user's events
+//        System.out.println("User events: " + user.getEvents());
+//
+//        return user.getEvents().stream()
+//                .map(event -> new EventDTO(event.getId(), event.getTitle(), event.getDescription(),
+//                        event.getEventDate(), event.getLocation(), event.getCreatedAt(), event.getModifiedAt()))
+//                .collect(Collectors.toList());
+//    }
 }

@@ -1,6 +1,7 @@
 package com.northcoders.jvevents.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -31,8 +32,8 @@ public class Event {
     private String location;
 
     @ManyToMany(mappedBy = "events", fetch = FetchType.EAGER)
-    @JsonBackReference
-    private Set<AppUser> users = new HashSet<>();
+    @JsonIgnore  // Ignore the back reference during serialization
+    private List<AppUser> users = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp

@@ -21,4 +21,21 @@ public class EventDTO {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private Set<AppUserDTO> users;
+
+    public EventDTO(Long id, String title, String description, LocalDateTime eventDate, String location, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.eventDate = eventDate;
+        this.location = location;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+    }
+
+    public EventDTO(Long id, String title, LocalDateTime eventDate, String location) {
+        this.id = id;
+        this.title = title;
+        this.eventDate = eventDate;
+        this.location = location;
+    }
 }

@@ -1,8 +1,9 @@
 package com.northcoders.jvevents.controller;
 
 import com.northcoders.jvevents.dto.AppUserDTO;
-import com.northcoders.jvevents.exception.UnauthenticatedUserException;
+import com.northcoders.jvevents.dto.EventDTO;
 import com.northcoders.jvevents.service.AppUserService;
+import com.northcoders.jvevents.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,9 @@ public class AppUserController {
 
     @Autowired
     private AppUserService appUserService;
+
+    @Autowired
+    private EventService eventService;
 
     // Get all users
     @GetMapping
@@ -45,5 +49,16 @@ public class AppUserController {
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
         appUserService.deleteUserById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // Get events assigned to a user
+    @GetMapping("/{userId}/events")
+    public ResponseEntity<List<EventDTO>> getEventsForUser(@PathVariable Long userId) {
+        List<EventDTO> events = eventService.getEventsForUser(userId);
+        if (events != null && !events.isEmpty()) {
+            return ResponseEntity.ok(events);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

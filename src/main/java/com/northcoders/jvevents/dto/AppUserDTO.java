@@ -16,7 +16,7 @@ public class AppUserDTO {
     private Long id;
     private String username;
     private String email;
-    private Set<Long> eventIds;  // We'll send event IDs as references, not the full event object.
+    private Set<Long> eventIds;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -25,5 +25,7 @@ public class AppUserDTO {
         this.username = username;
         this.email = email;
     }
+
+//    public <R> AppUserDTO(Long id, String username, String email, R collect) {}
 
 }
