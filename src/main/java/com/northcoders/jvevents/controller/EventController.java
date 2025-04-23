@@ -2,7 +2,6 @@ package com.northcoders.jvevents.controller;
 
 import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
-import com.northcoders.jvevents.model.AppUser;
 import com.northcoders.jvevents.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,15 +35,15 @@ public class EventController {
         }
     }
 
-    // Create a new event
-    @PostMapping
+    // Create a new event - Only staff can access this
+    @PostMapping("/create")
     public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
         EventDTO createdEvent = eventService.createEvent(eventDTO);
         return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
     }
 
-    // Update event by id
-    @PutMapping("/{id}")
+    // Update event by id - Only staff can access this
+    @PutMapping("/update/{id}")
     public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @RequestBody EventDTO eventDTO) {
         EventDTO updatedEvent = eventService.updateEvent(id, eventDTO);
         if (updatedEvent != null) {
@@ -54,14 +53,14 @@ public class EventController {
         }
     }
 
-    // Delete event by id
+    // Delete event by id - Only staff can access this
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         eventService.deleteEventById(id);
-
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    // Other endpoints like signing up for an event remain publicly available or according to your access logic
     @PostMapping("/{id}/signup")
     public ResponseEntity<Void> signupForEvent(@PathVariable Long id, @RequestParam String email) {
         eventService.signupForEvent(id, email);

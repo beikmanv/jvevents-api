@@ -18,6 +18,9 @@ import java.util.List;
 @Table(name = "app_users")
 public class AppUser {
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean staff; // This flag indicates if the user is a staff member
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

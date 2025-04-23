@@ -2,10 +2,7 @@ package com.northcoders.jvevents.service;
 
 import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
-import com.northcoders.jvevents.exception.AppUserNotFoundException;
-import com.northcoders.jvevents.exception.EventNotFoundException;
-import com.northcoders.jvevents.exception.UnauthenticatedUserException;
-import com.northcoders.jvevents.exception.UserNotFoundException;
+import com.northcoders.jvevents.exception.*;
 import com.northcoders.jvevents.model.AppUser;
 import com.northcoders.jvevents.model.Event;
 import com.northcoders.jvevents.repository.AppUserRepository;
@@ -93,18 +90,10 @@ public class AppUserServiceImpl implements AppUserService {
         return appUser;
     }
 
-//    // Get all events assigned to a specific user
-//    @Transactional
-//    public List<EventDTO> getEventsForUser(Long userId) {
-//        AppUser user = appUserRepository.findById(userId)
-//                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
-//
-//        // Log to verify the user's events
-//        System.out.println("User events: " + user.getEvents());
-//
-//        return user.getEvents().stream()
-//                .map(event -> new EventDTO(event.getId(), event.getTitle(), event.getDescription(),
-//                        event.getEventDate(), event.getLocation(), event.getCreatedAt(), event.getModifiedAt()))
-//                .collect(Collectors.toList());
-//    }
+    // Get user by email
+    @Override
+    public AppUser getUserByEmail(String email) {
+        return appUserRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
 }

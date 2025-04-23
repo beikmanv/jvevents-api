@@ -4,19 +4,16 @@ import com.northcoders.jvevents.model.AppUser;
 import com.northcoders.jvevents.model.CustomOAuth2User;
 import com.northcoders.jvevents.repository.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.stereotype.Service;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
@@ -36,8 +33,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         System.out.println("User details: " + attributes);
 
-        // Save user to database if not present
-        appUserRepository.findByEmail(email).orElseGet(() -> {
+        AppUser appUser = appUserRepository.findByEmail(email).orElseGet(() -> {
             AppUser newUser = AppUser.builder()
                     .email(email)
                     .username(username)
@@ -45,6 +41,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             return appUserRepository.save(newUser);
         });
 
-        return new CustomOAuth2User(oAuth2User, oAuth2User.getAuthorities());
+        // Collect authorities from the delegate
+        Set<GrantedAuthority> authorities = new HashSet<>(oAuth2User.getAuthorities());
+
+        // Add custom role if the user is a staff member
+        if (Boolean.TRUE.equals(appUser.isStaff())) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_STAFF"));
+        }
+
+        return new CustomOAuth2User(oAuth2User, authorities);
     }
 }
