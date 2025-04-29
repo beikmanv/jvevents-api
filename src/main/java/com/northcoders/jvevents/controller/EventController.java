@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -60,7 +61,7 @@ public class EventController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // Other endpoints like signing up for an event remain publicly available or according to your access logic
+    // Sign up for event
     @PostMapping("/{id}/signup")
     public ResponseEntity<Void> signupForEvent(@PathVariable Long id, @RequestParam String email) {
         eventService.signupForEvent(id, email);

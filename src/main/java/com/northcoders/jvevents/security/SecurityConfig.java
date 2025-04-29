@@ -30,9 +30,10 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions().disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/auth/google").permitAll() // ✅ allow Android login
                         .requestMatchers("/api/v1/events/create", "/api/v1/events/update/**", "/api/v1/events/delete/**")
                         .access(staffOnlyAuthorizationManager) // 👈 Use injected bean directly
-                        .requestMatchers("/api/v1/**").authenticated()
+                        .requestMatchers("/api/v1/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

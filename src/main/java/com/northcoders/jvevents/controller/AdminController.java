@@ -5,6 +5,8 @@ import com.northcoders.jvevents.exception.ResourceNotFoundException;
 import com.northcoders.jvevents.model.AppUser;
 import com.northcoders.jvevents.repository.AppUserRepository;
 import com.northcoders.jvevents.service.AppUserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,4 +47,5 @@ public class AdminController {
             return ResponseEntity.ok("You are not a staff member.");
         }
     }
+
 }
