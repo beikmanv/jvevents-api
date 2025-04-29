@@ -63,9 +63,17 @@ public class EventController {
 
     // Sign up for event
     @PostMapping("/{id}/signup")
-    public ResponseEntity<Void> signupForEvent(@PathVariable Long id, @RequestParam String email) {
-        eventService.signupForEvent(id, email);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> signupForEvent(@PathVariable Long id, @RequestParam String email) {
+        try {
+            eventService.signupForEvent(id, email);
+            return ResponseEntity.ok().build();
+        } catch (IllegalStateException e) {
+            // Already signed up
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already signed up for this event.");
+        } catch (Exception e) {
+            // Other unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
     }
 
     @GetMapping("/{id}/users")
