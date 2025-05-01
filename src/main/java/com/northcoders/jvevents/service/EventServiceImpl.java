@@ -9,6 +9,8 @@ import com.northcoders.jvevents.model.Event;
 import com.northcoders.jvevents.repository.EventRepository;
 import com.northcoders.jvevents.repository.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +40,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDTO getEventById(Long id) {
-        Event event = eventRepository.findById(id)
+    public EventDTO getEventById(Long eventId) {
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found"));
         return mapToDTO(event);
     }
@@ -52,8 +54,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDTO updateEvent(Long id, EventDTO eventDTO) {
-        Event event = eventRepository.findById(id)
+    public EventDTO updateEvent(Long eventId, EventDTO eventDTO) {
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found"));
 
         event.setTitle(eventDTO.getTitle());
@@ -66,8 +68,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void deleteEventById(Long id) {
-        Event event = eventRepository.findById(id)
+    public void deleteEventById(Long eventId) {
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found"));
         eventRepository.delete(event);
     }
@@ -99,18 +101,22 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
+    @Override
     @Transactional
     public void signupForEvent(Long eventId, String userEmail) {
         AppUser user = appUserRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userEmail));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found: " + eventId));
+
         if (user.getEvents().contains(event)) {
             throw new IllegalStateException("User is already signed up for this event.");
         }
+
         user.getEvents().add(event);
         event.getUsers().add(user);
         appUserRepository.save(user);
+
         System.out.println("✅ User added to event!");
     }
 

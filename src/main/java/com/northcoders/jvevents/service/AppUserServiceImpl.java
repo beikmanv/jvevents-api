@@ -48,15 +48,15 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public AppUserDTO getUserById(Long id) {
-        AppUser appUser = appUserRepository.findById(id)
+    public AppUserDTO getUserById(Long userId) {
+        AppUser appUser = appUserRepository.findById(userId)
                 .orElseThrow(() -> new AppUserNotFoundException("User not found"));
         return mapToDTO(appUser);
     }
 
     @Override
-    public void deleteUserById(Long id) {
-        AppUser appUser = appUserRepository.findById(id)
+    public void deleteUserById(Long userId) {
+        AppUser appUser = appUserRepository.findById(userId)
                 .orElseThrow(() -> new AppUserNotFoundException("User not found"));
         appUserRepository.delete(appUser);
     }

@@ -1,4 +1,4 @@
-package com.northcoders.jvevents.config;
+package com.northcoders.jvevents.config.security;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -9,7 +9,7 @@ import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 
 @Configuration
-public class FirebaseConfig {
+public class FirebaseAuthConfig {
 
     @PostConstruct
     public void initialize() {

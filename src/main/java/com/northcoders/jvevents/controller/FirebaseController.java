@@ -12,9 +12,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-public class AndroidGoogleController {
+public class FirebaseController {
 
-    @PostMapping("/google")
+    @PostMapping("/firebase/verify-token")
     public ResponseEntity<?> authenticate(@RequestParam("idToken") String idToken, HttpServletRequest request) {
         HttpSession session = request.getSession();
         System.out.println("📱 Token received: " + idToken);

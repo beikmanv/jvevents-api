@@ -13,9 +13,9 @@ public interface AppUserService {
 
     List<AppUserDTO> getAllUsers();
 
-    AppUserDTO getUserById(Long id);
+    AppUserDTO getUserById(Long userId);
 
-    void deleteUserById(Long id);
+    void deleteUserById(Long userId);
 
     AppUser getUserByEmail(String email);
 

@@ -1,4 +1,4 @@
-package com.northcoders.jvevents.security;
+package com.northcoders.jvevents.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,10 +7,8 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
-import java.util.function.Supplier;
-
 @Configuration
-public class StaffAuthorizationConfig {
+public class StaffAuthConfig {
 
     @Bean
     public AuthorizationManager<RequestAuthorizationContext> staffOnlyAuthorizationManager() {

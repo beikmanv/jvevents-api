@@ -6,10 +6,10 @@ import com.northcoders.jvevents.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -18,67 +18,53 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
-    // Get all events
     @GetMapping
     public ResponseEntity<List<EventDTO>> getAllEvents() {
-        List<EventDTO> events = eventService.getAllEvents();
-        return new ResponseEntity<>(events, HttpStatus.OK);
+        return ResponseEntity.ok(eventService.getAllEvents());
     }
 
-    // Get event by id
-    @GetMapping("/{id}")
-    public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
-        EventDTO eventDTO = eventService.getEventById(id);
-        if (eventDTO != null) {
-            return new ResponseEntity<>(eventDTO, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventDTO> getEventById(@PathVariable Long eventId) {
+        EventDTO eventDTO = eventService.getEventById(eventId);
+        return eventDTO != null
+                ? ResponseEntity.ok(eventDTO)
+                : ResponseEntity.notFound().build();
     }
 
-    // Create a new event - Only staff can access this
     @PostMapping("/create")
     public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
-        EventDTO createdEvent = eventService.createEvent(eventDTO);
-        return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
+        return new ResponseEntity<>(eventService.createEvent(eventDTO), HttpStatus.CREATED);
     }
 
-    // Update event by id - Only staff can access this
-    @PutMapping("/update/{id}")
-    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @RequestBody EventDTO eventDTO) {
-        EventDTO updatedEvent = eventService.updateEvent(id, eventDTO);
-        if (updatedEvent != null) {
-            return new ResponseEntity<>(updatedEvent, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PutMapping("/update/{eventId}")
+    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long eventId, @RequestBody EventDTO eventDTO) {
+        EventDTO updated = eventService.updateEvent(eventId, eventDTO);
+        return updated != null
+                ? ResponseEntity.ok(updated)
+                : ResponseEntity.notFound().build();
     }
 
-    // Delete event by id - Only staff can access this
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
-        eventService.deleteEventById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<Void> deleteEventById(@PathVariable Long eventId) {
+        eventService.deleteEventById(eventId);
+        return ResponseEntity.noContent().build();
     }
 
-    // Sign up for event
-    @PostMapping("/{id}/signup")
-    public ResponseEntity<?> signupForEvent(@PathVariable Long id, @RequestParam String email) {
+    @PostMapping("/{eventId}/signup")
+    public ResponseEntity<?> signupForEvent(@PathVariable Long eventId, Authentication authentication) {
+        String email = authentication.getName();
         try {
-            eventService.signupForEvent(id, email);
+            eventService.signupForEvent(eventId, email);
             return ResponseEntity.ok().build();
         } catch (IllegalStateException e) {
-            // Already signed up
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already signed up for this event.");
         } catch (Exception e) {
-            // Other unexpected errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 
-    @GetMapping("/{id}/users")
-    public ResponseEntity<List<AppUserDTO>> getUsersForEvent(@PathVariable Long id) {
-        List<AppUserDTO> users = eventService.getUsersForEvent(id);
-        return ResponseEntity.ok(users);
+    @GetMapping("/{eventId}/users")
+    public ResponseEntity<List<AppUserDTO>> getUsersForEvent(@PathVariable Long eventId) {
+        return ResponseEntity.ok(eventService.getUsersForEvent(eventId));
     }
 }

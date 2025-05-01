@@ -1,5 +1,6 @@
 package com.northcoders.jvevents.controller;
 
+import com.google.firebase.auth.FirebaseToken;
 import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
 import com.northcoders.jvevents.service.AppUserService;
@@ -24,41 +25,43 @@ public class AppUserController {
     @Autowired
     private EventService eventService;
 
-    // Get all users
     @GetMapping
     public ResponseEntity<List<AppUserDTO>> getAllUsers() {
-        List<AppUserDTO> users = appUserService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return ResponseEntity.ok(appUserService.getAllUsers());
     }
 
-    // Get current user
     @GetMapping("/user")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal OAuth2User principal) {
         String email = appUserService.getAuthenticatedUserEmail(principal);
         return ResponseEntity.ok(Map.of("email", email));
     }
 
-    // Get a user by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<AppUserDTO> getUserById(@PathVariable Long id) {
-        return new ResponseEntity<>(appUserService.getUserById(id), HttpStatus.OK);
+    @GetMapping("/{userId}")
+    public ResponseEntity<AppUserDTO> getUserById(@PathVariable Long userId) {
+        return ResponseEntity.ok(appUserService.getUserById(userId));
     }
 
-    // Delete a user by ID
-    @DeleteMapping("/{id}/delete")
-    public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
-        appUserService.deleteUserById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @DeleteMapping("/{userId}/delete")
+    public ResponseEntity<Void> deleteUserById(@PathVariable Long userId) {
+        appUserService.deleteUserById(userId);
+        return ResponseEntity.noContent().build();
     }
 
-    // Get events assigned to a user
     @GetMapping("/{userId}/events")
-    public ResponseEntity<List<EventDTO>> getEventsForUser(@PathVariable Long userId) {
-        List<EventDTO> events = eventService.getEventsForUser(userId);
-        if (events != null && !events.isEmpty()) {
-            return ResponseEntity.ok(events);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<List<EventDTO>> getEventsForUser(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal FirebaseToken token
+    ) {
+        String email = token.getEmail();
+        Long authenticatedUserId = appUserService.getUserByEmail(email).getId();
+
+        if (!authenticatedUserId.equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        List<EventDTO> events = eventService.getEventsForUser(userId);
+        return events.isEmpty()
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(events);
     }
 }
