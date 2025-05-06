@@ -93,7 +93,7 @@ public class AppUserServiceImpl implements AppUserService {
     // Get user by email
     @Override
     public AppUser getUserByEmail(String email) {
-        return appUserRepository.findByEmail(email)
+        return appUserRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 }
