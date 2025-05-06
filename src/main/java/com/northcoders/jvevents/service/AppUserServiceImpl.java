@@ -96,4 +96,9 @@ public class AppUserServiceImpl implements AppUserService {
         return appUserRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
+
+    @Override
+    public AppUser saveUser(AppUser user) {
+        return appUserRepository.save(user);
+    }
 }

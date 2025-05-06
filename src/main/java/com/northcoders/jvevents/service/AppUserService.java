@@ -19,4 +19,6 @@ public interface AppUserService {
 
     AppUser getUserByEmail(String email);
 
+    AppUser saveUser(AppUser user);
+
 }

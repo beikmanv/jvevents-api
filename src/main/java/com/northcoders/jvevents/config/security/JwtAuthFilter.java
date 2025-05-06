@@ -40,14 +40,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
                 String email = decodedToken.getEmail();
+                String name = decodedToken.getName();
 
                 logger.info("🔥 Firebase decoded email: {}", email);
 
-                AppUser user = appUserService.getUserByEmail(email);
+                AppUser user;
+                try {
+                    user = appUserService.getUserByEmail(email);
+                } catch (Exception e) {
+                    // User doesn't exist, create one
+                    user = new AppUser();
+                    user.setEmail(email);
+                    user.setUsername(name != null ? name : "User");
+                    user = appUserService.saveUser(user);
+                    logger.info("🆕 Created new user in DB: {}", email);
+                }
 
-                logger.info("🔎 User lookup: email={}, found={}, isStaff={}", email, user != null, user != null && user.isStaff());
-
-                List<SimpleGrantedAuthority> authorities = user != null && user.isStaff()
+                List<SimpleGrantedAuthority> authorities = user.isStaff()
                         ? List.of(new SimpleGrantedAuthority("ROLE_USER"), new SimpleGrantedAuthority("ROLE_STAFF"))
                         : List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
@@ -57,11 +66,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception e) {
-                logger.warn("❌ JWT token verification failed: {}", e.getMessage());
+                logger.warn("❌ JWT token verification or user creation failed: {}", e.getMessage());
             }
         }
 
         chain.doFilter(request, response);
     }
 }
-
