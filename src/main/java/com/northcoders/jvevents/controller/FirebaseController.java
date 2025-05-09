@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -15,27 +16,25 @@ import java.util.Map;
 public class FirebaseController {
 
     @PostMapping("/firebase/verify-token")
-    public ResponseEntity<?> authenticate(@RequestParam("idToken") String idToken, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        System.out.println("📱 Token received: " + idToken);
+    public ResponseEntity<Map<String, Object>> authenticate(@RequestParam("idToken") String idToken) {
+        Map<String, Object> response = new HashMap<>();
 
         try {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
             String uid = decodedToken.getUid();
             String email = decodedToken.getEmail();
 
-            session.setAttribute("email", email);
-            System.out.println("📦 Session created: " + session.getId());
-            System.out.println("✅ User authenticated: " + email);
-
-            return ResponseEntity.ok(Map.of(
-                    "uid", uid,
-                    "email", email
-            ));
+            response.put("status", "success");
+            response.put("uid", uid);
+            response.put("email", email);
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to verify token: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid ID token");
+            response.put("status", "error");
+            response.put("message", "Invalid ID token");
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
 }
+

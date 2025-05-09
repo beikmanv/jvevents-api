@@ -18,6 +18,7 @@ public class FirebaseAuthConfig {
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setProjectId("jv-events") // Ensure this is the correct project ID
                     .build();
 
             if (FirebaseApp.getApps().isEmpty()) {
