@@ -35,8 +35,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         logger.info("🔥 Processing JWT for URL: {}", requestURI);
 
-        // 🚨 Skip JWT Authentication for this specific route
-        if (requestURI.matches("/api/v1/users/\\d+/events")) {
+        // 🚫 Skip JWT Authentication for Public Endpoints
+        if (requestURI.startsWith("/api/v1/users") || requestURI.startsWith("/api/v1/events")) {
             logger.info("🚫 JWT Authentication skipped for: {}", requestURI);
             chain.doFilter(request, response);
             return;
@@ -55,7 +55,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                logger.info("🔥 Firebase decoded email: {}", email);
+                logger.info("✅ Firebase decoded email: {}", email);
 
                 AppUser user = appUserService.getUserByEmail(email);
                 List<SimpleGrantedAuthority> authorities = user.isStaff()
@@ -68,7 +68,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 logger.info("✅ User authenticated via JWT: {}", email);
 
             } catch (Exception e) {
-                logger.warn("❌ JWT token verification or user creation failed: {}", e.getMessage());
+                logger.warn("❌ JWT token verification failed: {}", e.getMessage());
             }
         } else {
             logger.info("🚫 No JWT token found, skipping authentication.");
@@ -77,5 +77,3 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 }
-
-
