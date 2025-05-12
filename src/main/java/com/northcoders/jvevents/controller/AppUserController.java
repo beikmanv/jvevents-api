@@ -50,18 +50,23 @@ public class AppUserController {
     @GetMapping("/{userId}/events")
     public ResponseEntity<List<EventDTO>> getEventsForUser(
             @PathVariable Long userId,
-            @AuthenticationPrincipal FirebaseToken token
+            @AuthenticationPrincipal FirebaseToken token // Token can be null
     ) {
-        String email = token.getEmail();
-        Long authenticatedUserId = appUserService.getUserByEmail(email).getId();
+        if (token != null) {
+            String email = token.getEmail();
+            Long authenticatedUserId = appUserService.getUserByEmail(email).getId();
 
-        if (!authenticatedUserId.equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            // Ensure the authenticated user is requesting their own events
+            if (!authenticatedUserId.equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
         }
 
+        // Fetch events for the user regardless of authentication
         List<EventDTO> events = eventService.getEventsForUser(userId);
         return events.isEmpty()
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(events);
     }
+
 }

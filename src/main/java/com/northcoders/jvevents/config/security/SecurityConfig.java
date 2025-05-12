@@ -32,24 +32,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions().disable())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // ✅ Move this higher for clarity
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/firebase/verify-token").permitAll()
-                        .requestMatchers("/api/v1/events/create", "/api/v1/events/update/**", "/api/v1/events/delete/**")
-                        .access(staffOnlyAuthorizationManager)
-                        .requestMatchers("/api/v1/admin/is-staff").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/events/**").permitAll()
-                        .requestMatchers("/api/v1/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/{userId}/events").permitAll() // ✅ Permit all
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
+                        .loginPage("/login").permitAll() // 🚨 Exclude this route from auto-redirect
                 )
+                .addFilterAt(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Client(withDefaults());
 
         return http.build();
     }
 }
+
