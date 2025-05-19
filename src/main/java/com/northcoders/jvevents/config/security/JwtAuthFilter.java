@@ -32,46 +32,42 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        String requestURI = request.getRequestURI();
-        logger.info("🔥 Processing JWT for URL: {}", requestURI);
-
-        // 🚫 Skip JWT Authentication for Public Endpoints
-        if (requestURI.startsWith("/api/v1/users") || requestURI.startsWith("/api/v1/events")) {
-            logger.info("🚫 JWT Authentication skipped for: {}", requestURI);
-            chain.doFilter(request, response);
-            return;
-        }
-
         String authHeader = request.getHeader("Authorization");
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String idToken = authHeader.substring(7);
 
             try {
                 FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
                 String email = decodedToken.getEmail();
-                if (email == null) {
-                    logger.warn("❌ JWT Token is missing email.");
-                    chain.doFilter(request, response);
-                    return;
+                String name = decodedToken.getName();
+
+                logger.info("🔥 Firebase decoded email: {}", email);
+
+                AppUser user;
+                try {
+                    user = appUserService.getUserByEmail(email);
+                } catch (Exception e) {
+                    // User doesn't exist, create one
+                    user = new AppUser();
+                    user.setEmail(email);
+                    user.setUsername(name != null ? name : "User");
+                    user = appUserService.saveUser(user);
+                    logger.info("🆕 Created new user in DB: {}", email);
                 }
 
-                logger.info("✅ Firebase decoded email: {}", email);
-
-                AppUser user = appUserService.getUserByEmail(email);
                 List<SimpleGrantedAuthority> authorities = user.isStaff()
                         ? List.of(new SimpleGrantedAuthority("ROLE_USER"), new SimpleGrantedAuthority("ROLE_STAFF"))
                         : List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(email, null, authorities);
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.info("✅ User authenticated via JWT: {}", email);
 
             } catch (Exception e) {
-                logger.warn("❌ JWT token verification failed: {}", e.getMessage());
+                logger.warn("❌ JWT token verification or user creation failed: {}", e.getMessage());
             }
-        } else {
-            logger.info("🚫 No JWT token found, skipping authentication.");
         }
 
         chain.doFilter(request, response);

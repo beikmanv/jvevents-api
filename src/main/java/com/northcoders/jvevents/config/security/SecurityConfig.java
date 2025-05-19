@@ -32,17 +32,24 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions().disable())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // ✅ Move this higher for clarity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**", "/api/auth/firebase/verify-token", "/login").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/auth/firebase/verify-token").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/events").access(staffOnlyAuthorizationManager)
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/events/**").access(staffOnlyAuthorizationManager)
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/events/**").access(staffOnlyAuthorizationManager)
+                        .requestMatchers("/api/v1/admin/is-staff").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/events/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll() // ✅ Allow all user endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").authenticated()
+                        .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .loginPage("/login").permitAll()
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Client(withDefaults());
 
         return http.build();
