@@ -1,6 +1,7 @@
 package com.northcoders.jvevents.config.security;
 
 import com.northcoders.jvevents.service.CustomOAuth2UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions().disable())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // ✅ Move this higher for clarity
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/firebase/verify-token").permitAll()
@@ -41,14 +42,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/events/**").access(staffOnlyAuthorizationManager)
                         .requestMatchers("/api/v1/admin/is-staff").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/events/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
                         .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // Instead of redirecting to /oauth2/authorization/google
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                )
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                        )
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 )
                 .oauth2Client(withDefaults());
 

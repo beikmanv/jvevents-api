@@ -45,7 +45,6 @@ public class AdminController {
         }
     }
 
-    // ✅ THIS WAS MISSING @GetMapping
     @GetMapping("/is-staff")
     public ResponseEntity<Boolean> isUserStaff(Authentication authentication) {
         String email = authentication.getName();
