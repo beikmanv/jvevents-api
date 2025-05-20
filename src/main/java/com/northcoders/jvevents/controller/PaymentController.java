@@ -1,11 +1,17 @@
 package com.northcoders.jvevents.controller;
 
 import com.google.firebase.auth.FirebaseToken;
+import com.northcoders.jvevents.model.AppUser;
+import com.northcoders.jvevents.model.Payment;
+import com.northcoders.jvevents.repository.AppUserRepository;
+import com.northcoders.jvevents.repository.PaymentRepository;
+import com.northcoders.jvevents.service.EmailService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.PaymentIntent;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
@@ -28,6 +34,15 @@ public class PaymentController {
         System.out.println("✅ Stripe API key loaded: " + stripeSecretKey);
         Stripe.apiKey = stripeSecretKey;
     }
+
+    @Autowired
+    private AppUserRepository userRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping("/charge")
     public ResponseEntity<?> charge(@RequestBody Map<String, String> payload, Principal principal) {
@@ -55,10 +70,29 @@ public class PaymentController {
 
             Charge charge = Charge.create(params); // ✅ Correct method for test tokens
 
+            // 🟡 Get user by email from principal
+            AppUser user = userRepository.findByEmail(principal.getName()).orElse(null);
+
+            Payment payment = Payment.builder()
+                    .chargeId(charge.getId())
+                    .amount(500) // Store amount in cents (or use BigDecimal for more accuracy)
+                    .currency("usd")
+                    .email(principal.getName())
+                    .status(charge.getStatus())
+                    .build();
+
+            // ✅ Save Payment to DB
+            paymentRepository.save(payment);
+
+            if (user != null) {
+                emailService.sendPaymentConfirmation(user.getEmail(), charge.getId(), "$5.00");
+            }
+
             return ResponseEntity.ok(Map.of(
                     "id", charge.getId(),
                     "status", charge.getStatus()
             ));
+
         } catch (StripeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
