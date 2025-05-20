@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions().disable())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Temporary to test Stripe
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/firebase/verify-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/events").access(staffOnlyAuthorizationManager)
