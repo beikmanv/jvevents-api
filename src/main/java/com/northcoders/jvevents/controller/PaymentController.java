@@ -1,15 +1,13 @@
 package com.northcoders.jvevents.controller;
 
-import com.google.firebase.auth.FirebaseToken;
 import com.northcoders.jvevents.model.AppUser;
 import com.northcoders.jvevents.model.Payment;
 import com.northcoders.jvevents.repository.AppUserRepository;
 import com.northcoders.jvevents.repository.PaymentRepository;
-import com.northcoders.jvevents.service.EmailService;
+import com.northcoders.jvevents.service.EmailServiceImpl;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
-import com.stripe.model.PaymentIntent;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +40,7 @@ public class PaymentController {
     private PaymentRepository paymentRepository;
 
     @Autowired
-    private EmailService emailService;
+    private EmailServiceImpl emailService;
 
     @PostMapping("/charge")
     public ResponseEntity<?> charge(@RequestBody Map<String, String> payload, Principal principal) {
@@ -75,7 +73,7 @@ public class PaymentController {
 
             Payment payment = Payment.builder()
                     .chargeId(charge.getId())
-                    .amount(500) // Store amount in cents (or use BigDecimal for more accuracy)
+                    .amount(500)
                     .currency("usd")
                     .email(principal.getName())
                     .status(charge.getStatus())

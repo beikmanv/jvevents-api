@@ -3,6 +3,7 @@ package com.northcoders.jvevents.controller;
 import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
 import com.northcoders.jvevents.service.AppUserService;
+import com.northcoders.jvevents.service.EmailService;
 import com.northcoders.jvevents.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,9 @@ public class AppUserController {
     @Autowired
     private EventService eventService;
 
+    @Autowired
+    private EmailService emailService;
+
     @GetMapping
     public ResponseEntity<List<AppUserDTO>> getAllUsers() {
         return ResponseEntity.ok(appUserService.getAllUsers());
@@ -34,5 +38,10 @@ public class AppUserController {
     public ResponseEntity<List<EventDTO>> getEventsForUser(@PathVariable Long userId) {
         List<EventDTO> events = eventService.getEventsForUser(userId);
         return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/test-email")
+    public void testEmail() {
+        emailService.sendEventSignupConfirmation("v.beikmanis@gmail.com", "Test Event");
     }
 }

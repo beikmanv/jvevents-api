@@ -2,6 +2,8 @@ package com.northcoders.jvevents.controller;
 
 import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
+import com.northcoders.jvevents.dto.SignupResult;
+import com.northcoders.jvevents.service.EmailService;
 import com.northcoders.jvevents.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,9 @@ public class EventController {
 
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping
     public ResponseEntity<List<EventDTO>> getAllEvents() {
@@ -51,10 +56,10 @@ public class EventController {
     }
 
     @PostMapping("/{eventId}/signup")
-    public ResponseEntity<?> signupForEvent(@PathVariable Long eventId, Authentication authentication) {
-        String email = authentication.getName();
+    public ResponseEntity<?> signupForEvent(@PathVariable Long eventId, @RequestParam String email) {
         try {
-            eventService.signupForEvent(eventId, email);
+            SignupResult result = eventService.signupForEvent(eventId, email);
+            emailService.sendEventSignupConfirmation(result.getUserEmail(), result.getEventTitle());
             return ResponseEntity.ok().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already signed up for this event.");

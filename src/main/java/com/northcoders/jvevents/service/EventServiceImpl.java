@@ -2,6 +2,7 @@ package com.northcoders.jvevents.service;
 
 import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
+import com.northcoders.jvevents.dto.SignupResult;
 import com.northcoders.jvevents.exception.EventNotFoundException;
 import com.northcoders.jvevents.exception.UserNotFoundException;
 import com.northcoders.jvevents.model.AppUser;
@@ -81,13 +82,13 @@ public class EventServiceImpl implements EventService {
 
         EventDTO eventDTO = new EventDTO();
         eventDTO.setId(event.getId());
-        eventDTO.setTitle(event.getTitle());  // Mapping title
+        eventDTO.setTitle(event.getTitle());
         eventDTO.setDescription(event.getDescription());
-        eventDTO.setEventDate(event.getEventDate());  // Mapping eventDate
+        eventDTO.setEventDate(event.getEventDate());
         eventDTO.setLocation(event.getLocation());
-        eventDTO.setCreatedAt(event.getCreatedAt());  // Mapping createdAt
-        eventDTO.setModifiedAt(event.getModifiedAt());  // Mapping modifiedAt
-        eventDTO.setUsers(userDTOs);  // Add users here
+        eventDTO.setCreatedAt(event.getCreatedAt());
+        eventDTO.setModifiedAt(event.getModifiedAt());
+        eventDTO.setUsers(userDTOs);
         return eventDTO;
     }
 
@@ -103,7 +104,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void signupForEvent(Long eventId, String userEmail) {
+    public SignupResult signupForEvent(Long eventId, String userEmail) {
         AppUser user = appUserRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userEmail));
         Event event = eventRepository.findById(eventId)
@@ -118,6 +119,8 @@ public class EventServiceImpl implements EventService {
         appUserRepository.save(user);
 
         System.out.println("✅ User added to event!");
+
+        return new SignupResult(user.getEmail(), event.getTitle());
     }
 
     public List<AppUserDTO> getUsersForEvent(Long eventId) {
