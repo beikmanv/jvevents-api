@@ -25,7 +25,4 @@ public class AppUserDTO {
         this.username = username;
         this.email = email;
     }
-
-//    public <R> AppUserDTO(Long id, String username, String email, R collect) {}
-
 }

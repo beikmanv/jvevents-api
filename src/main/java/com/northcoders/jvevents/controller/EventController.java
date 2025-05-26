@@ -2,13 +2,11 @@ package com.northcoders.jvevents.controller;
 
 import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
-import com.northcoders.jvevents.dto.SignupResult;
 import com.northcoders.jvevents.service.EmailService;
 import com.northcoders.jvevents.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

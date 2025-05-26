@@ -2,7 +2,7 @@ package com.northcoders.jvevents.service;
 
 import com.northcoders.jvevents.dto.AppUserDTO;
 import com.northcoders.jvevents.dto.EventDTO;
-import com.northcoders.jvevents.dto.SignupResult;
+import com.northcoders.jvevents.dto.SignupResultDTO;
 import com.northcoders.jvevents.exception.EventNotFoundException;
 import com.northcoders.jvevents.exception.UserNotFoundException;
 import com.northcoders.jvevents.model.AppUser;
@@ -10,8 +10,6 @@ import com.northcoders.jvevents.model.Event;
 import com.northcoders.jvevents.repository.EventRepository;
 import com.northcoders.jvevents.repository.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,9 +77,11 @@ public class EventServiceImpl implements EventService {
     }
 
     private EventDTO mapToDTO(Event event) {
-        Set<AppUserDTO> userDTOs = event.getUsers().stream()
+        Set<AppUserDTO> userDTOs = event.getUsers() != null
+                ? event.getUsers().stream()
                 .map(user -> new AppUserDTO(user.getId(), user.getUsername(), user.getEmail()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet())
+                : new HashSet<>();
 
         EventDTO eventDTO = new EventDTO();
         eventDTO.setId(event.getId());
@@ -107,7 +107,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public SignupResult signupForEvent(Long eventId, String userEmail) {
+    public SignupResultDTO signupForEvent(Long eventId, String userEmail) {
         AppUser user = appUserRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userEmail));
         Event event = eventRepository.findById(eventId)
@@ -123,7 +123,7 @@ public class EventServiceImpl implements EventService {
 
         emailService.sendEventSignupConfirmation(user.getEmail(), event.getTitle());
 
-        return new SignupResult(user.getEmail(), event.getTitle());
+        return new SignupResultDTO(user.getEmail(), event.getTitle());
     }
 
     public List<AppUserDTO> getUsersForEvent(Long eventId) {

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SignupResult {
+public class SignupResultDTO {
     private String userEmail;
     private String eventTitle;
 }
