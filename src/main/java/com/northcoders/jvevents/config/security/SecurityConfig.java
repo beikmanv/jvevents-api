@@ -38,7 +38,7 @@ public class SecurityConfig {
 //                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Temporary to test Stripe
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/firebase/verify-token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/events").access(staffOnlyAuthorizationManager)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/events/**").access(staffOnlyAuthorizationManager)
                         .requestMatchers(HttpMethod.PUT, "/api/v1/events/**").access(staffOnlyAuthorizationManager)
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/events/**").access(staffOnlyAuthorizationManager)
                         .requestMatchers("/api/v1/admin/is-staff").authenticated()

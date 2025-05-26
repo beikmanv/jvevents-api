@@ -30,6 +30,9 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private AppUserRepository appUserRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public List<EventDTO> getAllEvents() {
         List<Event> eventList = new ArrayList<>();
@@ -118,7 +121,7 @@ public class EventServiceImpl implements EventService {
         event.getUsers().add(user);
         appUserRepository.save(user);
 
-        System.out.println("✅ User added to event!");
+        emailService.sendEventSignupConfirmation(user.getEmail(), event.getTitle());
 
         return new SignupResult(user.getEmail(), event.getTitle());
     }

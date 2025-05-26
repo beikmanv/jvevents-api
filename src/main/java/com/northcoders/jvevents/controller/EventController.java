@@ -30,10 +30,7 @@ public class EventController {
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventDTO> getEventById(@PathVariable Long eventId) {
-        EventDTO eventDTO = eventService.getEventById(eventId);
-        return eventDTO != null
-                ? ResponseEntity.ok(eventDTO)
-                : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(eventService.getEventById(eventId));
     }
 
     @PostMapping("/create")
@@ -58,8 +55,7 @@ public class EventController {
     @PostMapping("/{eventId}/signup")
     public ResponseEntity<?> signupForEvent(@PathVariable Long eventId, @RequestParam String email) {
         try {
-            SignupResult result = eventService.signupForEvent(eventId, email);
-            emailService.sendEventSignupConfirmation(result.getUserEmail(), result.getEventTitle());
+            eventService.signupForEvent(eventId, email);
             return ResponseEntity.ok().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already signed up for this event.");
