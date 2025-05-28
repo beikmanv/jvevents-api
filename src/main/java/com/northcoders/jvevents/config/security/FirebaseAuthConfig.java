@@ -18,7 +18,14 @@ public class FirebaseAuthConfig {
     public void initialize() {
         try {
             String serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON");
-            InputStream serviceAccount = new ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8));
+
+            InputStream serviceAccount;
+            if (serviceAccountJson != null && !serviceAccountJson.isBlank()) {
+                serviceAccount = new ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8));
+            } else {
+                // ✅ fallback to local file for dev
+                serviceAccount = new FileInputStream("src/main/resources/serviceAccountKey.json");
+            }
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
