@@ -29,7 +29,7 @@ public class PaymentController {
 
     @PostConstruct
     public void init() {
-        System.out.println("✅ Stripe API key loaded: " + stripeSecretKey);
+        System.out.println("✅ Stripe API key loaded.");
         Stripe.apiKey = stripeSecretKey;
     }
 
