@@ -37,7 +37,6 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions().disable())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Temporary to test Stripe
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/firebase/verify-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/events/**").access(staffOnlyAuthorizationManager)
@@ -51,8 +50,12 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            // Instead of redirecting to /oauth2/authorization/google
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\":\"Access Denied\",\"message\":\"Staff only route\"}");
                         })
                 )
                 .oauth2Login(oauth2 -> oauth2
