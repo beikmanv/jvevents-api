@@ -52,6 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     user = new AppUser();
                     user.setEmail(email);
                     user.setUsername(name != null ? name : "User");
+                    user.setStaff(true); // ✅ Force staff to true for testing
                     user = appUserService.saveUser(user);
                     logger.info("🆕 Created new user in DB: {}", email);
                 }
