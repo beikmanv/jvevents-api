@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 @Configuration
 public class FirebaseAuthConfig {
@@ -14,8 +15,13 @@ public class FirebaseAuthConfig {
     @PostConstruct
     public void initialize() {
         try {
-            FileInputStream serviceAccount = new FileInputStream("src/main/resources/serviceAccountKey.json");
+            InputStream serviceAccount = FirebaseAuthConfig.class
+                    .getClassLoader()
+                    .getResourceAsStream("serviceAccountKey.json");
 
+            if (serviceAccount == null) {
+                throw new RuntimeException("❌ Could not find serviceAccountKey.json in classpath");
+            }
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setProjectId("jv-events") // Ensure this is the correct project ID
