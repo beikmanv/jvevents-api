@@ -39,9 +39,4 @@ public class AppUserController {
         List<EventDTO> events = eventService.getEventsForUser(userId);
         return ResponseEntity.ok(events);
     }
-
-    @GetMapping("/test-email")
-    public void testEmail() {
-        emailService.sendEventSignupConfirmation("v.beikmanis@gmail.com", "Test Event");
-    }
 }
